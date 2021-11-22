@@ -1,0 +1,23 @@
+{
+    "users": {
+        "name": "Luis Pozzobon",
+        "email": "luispozzbonnnnn@gmail.com",
+        "password": "12345614147",
+        "phone": "999192192912",
+        "documentId": "8124717824712",
+        "type": "Consumer",
+        "status": "Active"
+    },
+    "locales": {
+        "_userId": "606508536b8c5232d80cb881",
+        "name": "Pesca Machado",
+        "type": "Commercial",
+        "status": "Active"
+    },
+    "services": {
+        "_localeId": "606510ab4b031b3770dc06ec",
+        "name": "Pescaria",
+        "description": "Pescaria grátis durante o período contratado",
+        "value": 99.99
+    }
+}
