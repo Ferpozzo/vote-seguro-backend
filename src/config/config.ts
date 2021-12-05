@@ -48,7 +48,7 @@ export const environment = {
         port: process.env.SERVER_PORT || 3000,
         localesPath: './dist/images/locales/'
     },
-    db: { url: process.env.DB_URL || 'mongodb+srv://turistas:turistas@turistas.jpes4.mongodb.net/turistas?retryWrites=true&w=majority' },
+    db: { url: process.env.DB_URL || 'mongodb+srv://voteseguro:voteseguro@vote-seguro.n6l30.mongodb.net/vote-segirp?retryWrites=true&w=majority' },
     security: {
         saltRounds: process.env.SALT_ROUNDS || 10,
         secret: process.env.SECRET || '3904a66849cee880d8014f7acaafe8d9',

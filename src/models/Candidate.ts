@@ -54,7 +54,7 @@ export const UserSchema = new mongoose.Schema({
 )
 
 export const ImageSchema = new mongoose.Schema({
-    _userId: {
+    _localeId: {
         type: Schema.Types.ObjectId,
         required: true
     },
