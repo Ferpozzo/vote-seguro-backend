@@ -1,24 +1,38 @@
 import aws from 'aws-sdk';
 import { mongoose } from '../database/database'
-import bcrypt from 'bcryptjs'
-import { environment } from '../config/config';
 import { Schema } from 'mongoose';
-import { promisify } from 'util'
 import fs from 'fs'
 import path from 'path'
 const s3 = new aws.S3();
 
-export interface UserInterface extends mongoose.Document {
+export interface CandidateInterface extends mongoose.Document {
     _id?: string,
+    votation: string,
     name: string,
-    email: string,
-    password: string,
-    gender: 'Male' | 'Female' | 'Other',
     documentId: string,
+    number: number,
+    group: string,
+    image: string,
     updatedAt?: Date,
     createdAt?: Date
 }
-export const UserSchema = new mongoose.Schema({
+export interface CandidateImageInterface extends mongoose.Document {
+    _id?: string,
+    candidate: string,
+    name: string,
+    key: string,
+    url: string,
+    size: number,
+    mimetype: string,
+    updatedAt?: Date,
+    createdAt?: Date
+}
+export const CandidateSchema = new mongoose.Schema({
+    votation: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: 'Votation'
+    },
     name: {
         type: String,
         required: true,
@@ -27,7 +41,6 @@ export const UserSchema = new mongoose.Schema({
     },
     documentId: {
         type: String,
-        unique: true,
         required: true
     },
     gender: {
@@ -35,17 +48,18 @@ export const UserSchema = new mongoose.Schema({
         required: false,
         enum: ['Male', 'Female', 'Other']
     },
-    email: {
+    group: {
         type: String,
-        unique: true,
-        required: false,
-        match: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        required: true
     },
-    password: {
+    image: {
         type: String,
-        required: true,
-        select: false,
-        minlength: 8
+        required: false
+    },
+    img: {
+        type: Schema.Types.ObjectId,
+        ref: 'CandidateImage',
+        required: false
     }
 },
     {
@@ -53,10 +67,11 @@ export const UserSchema = new mongoose.Schema({
     }
 )
 
-export const ImageSchema = new mongoose.Schema({
-    _localeId: {
+export const CandidateImageSchema = new mongoose.Schema({
+    candidate: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'Candidate'
     },
     name: {
         type: String,
@@ -81,34 +96,24 @@ export const ImageSchema = new mongoose.Schema({
         timestamps: true
     }
 )
-ImageSchema.pre('save', function () {
+CandidateImageSchema.pre<CandidateImageInterface>('save', function () {
     if (!this.url) {
-        this.url = process.env.BACKEND_URL + '/files/images/locales/' + this.key
+        this.url = process.env.BACKEND_URL + '/files/images/candidates/' + this.key
     }
 })
-ImageSchema.pre('remove', function () {
+CandidateImageSchema.pre<CandidateImageInterface>('remove', function () {
     if (process.env.STORAGE_TYPE === 's3') {
         return s3.deleteObject({
             Bucket: `${process.env.AWS_BUCKET}`,
             Key: this.key
         }).promise()
     } else {
-        return fs.unlink(path.resolve(__dirname, '..', '..', 'tmp', 'images', 'locales', this.key), cb => {
+        return fs.unlink(path.resolve(__dirname, '..', '..', 'tmp', 'images', 'candidates', this.key), cb => {
 
         })
     }
 })
-UserSchema.pre<UserInterface>('save', async function (next) {
-    const user = this
-    if (!user.isModified('password')) {
-        next()
-    } else {
-        const hash = await bcrypt.hash(this.password, environment.security.saltRounds)
-        this.password = hash
-        next()
-    }
-})
-const User = mongoose.model('User', UserSchema)
-const Image = mongoose.model('Image', ImageSchema)
+const Candidate = mongoose.model('Candidate', CandidateSchema)
+const CandidateImage = mongoose.model('CandidateImage', CandidateImageSchema)
 
-export { User, Image }
+export { Candidate, CandidateImage }
